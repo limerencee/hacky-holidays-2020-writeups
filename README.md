@@ -1,0 +1,18 @@
+# Hacky Holidays 2020 CTF Write-ups
+
+**Website:** to be filled
+
+This repository contains my personal write-ups for the challenges that I solved in Hackerone's [Hacky Holidays 2020](https://www.hackerone.com/blog/12-days-hacky-holidays-ctf) CTF. There are **12** challenges in total.
+
+**Target Site:** [https://hackyholidays.h1ctf.com/](https://hackyholidays.h1ctf.com/)
+
+----
+
+
+## Write-ups
+1. [Robots](robots.md)
+2. [s3cr3t-ar3a](s3cr3t-ar3a.md)
+3. [People Rater](people-rater.md)
+4. [Swag Shop](swag-shop.md)
+
+----
