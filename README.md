@@ -14,5 +14,5 @@ This repository contains my personal write-ups for the challenges that I solved 
 2. [s3cr3t-ar3a](s3cr3t-ar3a.md)
 3. [People Rater](people-rater.md)
 4. [Swag Shop](swag-shop.md)
-
+5. [Secure Login](secure-login.md)
 ----
