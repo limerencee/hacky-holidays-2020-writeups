@@ -184,5 +184,5 @@ flag{2e6f9bf8-fdbd-483b-8c18-bdf371b2b004}
 **Flag:** `flag{2e6f9bf8-fdbd-483b-8c18-bdf371b2b004}`
 
 
-## Thoughts
+## Thoughts 🔐
 Yet another fuzzing challenge. It is "straightforward" but painful since there is nothing else to do while waiting for the fuzzer to do its magic. One of the key takeaways is choosing a suitable wordlist (as with all other fuzzing challenges). Also remembering how servers keep track of sessions (typically via `Cookies`) is important in the second half of this challenge.

@@ -55,5 +55,5 @@ To find out who is *numero uno*, I sent a `GET` request to `/people-rater/entry?
 **Flag:** `flag{b705fb11-fb55-442f-847f-0931be82ed9a}`
 
 
-## Thoughts
+## Thoughts 🥇
 This was pretty straightforward as long as one can read simple JavaScript and understand what the buttons' event handler was doing. Also, being able to recognize the base-64 encoded `data-id` attribute would be key in solving this challenge.

@@ -15,4 +15,8 @@ This repository contains my personal write-ups for the challenges that I solved 
 3. [People Rater](people-rater.md)
 4. [Swag Shop](swag-shop.md)
 5. [Secure Login](secure-login.md)
+6. [My Diary](my-diary.md)
+7. [Hate Mail Generator](hate-mail-generator.md)
+8. [Forum](forum.md)
+9. [Evil Quiz](evil-quiz.md)
 ----

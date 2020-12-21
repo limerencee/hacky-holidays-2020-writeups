@@ -19,7 +19,7 @@ Nothing much to go on, so I opened my Chrome browser's [developer tools](https:/
 **Flag:** `flag{b7ebcb75-9100-4f91-8454-cfb9574459f7}`
 
 
-## Thoughts
+## Thoughts 🆓
 There is a "trap" where if you viewed the entire source of the page (`CTRL + U` for Chrome), the `data-info` will not be shown. This is because the flag is inserted into the page dynamically by JavaScript.
 
 Otherwise, this flag is a freebie once you have found the robots flag.

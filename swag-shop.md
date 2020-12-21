@@ -94,7 +94,7 @@ Which gave me the flag at last!
 **Flag:** `flag{972e7072-b1b6-4bf7-b825-a912d3fd38d6}`
 
 
-## Thoughts
+## Thoughts 🎯
 This challenge was unexpectedly tricky, probably because I did not expect there to be fuzzing challenges (server load and all, with such a large participation too). However, once the mental barrier has been cleared, I just had to find a nice wordlist. Luckily, seclists can always be depended on. 😎
 
 There were rabbit holes that I fell into, such as trying to use the decoded session `cookie` key to gain authentication at previously known end-points. Being too fixated on gaining authentication was most likely a common pitfall for most of us, especially when the client-side JavaScript code looked so *sus*.

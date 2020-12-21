@@ -16,7 +16,7 @@ This is because website developers do not want search engines to publicly index 
 **Flag:** `flag{48104912-28b0-494a-9995-a203d1e261e7}`
 
 
-## Thoughts
+## Thoughts 🤖
 This was the most trivial flag which I believe anyone (even slightly) familiar with testing web applications would immediately find!
 
 I also noticed that in the robots file, there is a URL at `/s3cr3t-ar3a`. Is it time for the [next flag](s3cr3t-ar3a.md)?
