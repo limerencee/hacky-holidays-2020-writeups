@@ -19,4 +19,5 @@ This repository contains my personal write-ups for the challenges that I solved 
 7. [Hate Mail Generator](hate-mail-generator.md)
 8. [Forum](forum.md)
 9. [Evil Quiz](evil-quiz.md)
+10. [Signup Manager](signup-manager.md)
 ----
