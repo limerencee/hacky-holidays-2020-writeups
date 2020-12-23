@@ -182,7 +182,7 @@ if (is_numeric($element)) {
 Output > '1e9' is numeric
 ```
 
-Furthermore, the `$age` variable stores the **converted** value after calling the `intval()` [function](https://www.php.net/manual/en/function.intval.php) with the value supplied:
+Furthermore, the `$age` variable stores the **converted** value after calling the `intval()` [function](https://www.php.net/manual/en/function.intval.php) with the supplied value:
 
 ```php
 $element = intval('1e9');
