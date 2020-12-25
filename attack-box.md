@@ -14,6 +14,8 @@ It's time to stop Grinch once and for all! The landing page shows 3 "targets" fo
 
 Launching the first one, we see a simulated terminal that is launching a botnet attack on Santa!! 😱
 
+> Is 🎅's IP really at `203.0.113.33`? Time for some 🎁
+
 <p align="center">
   <img src="screenshots/attack-box-1.png" style="width:90%; border:0.5px solid black">
 </p>
@@ -52,9 +54,7 @@ Afterwards, the server will respond with a redirection to a URL that contains th
 </script>
 ```
 
-> Is 🎅's IP really at `203.0.113.33`? Time for some 🎁
-
-It appears that the browser will send a JSON request every 0.5 seconds, with the first request setting the `id` parameter set to `0`. Subsequently, the JSON requests will set the `id` parameter to the `id` received from the server's response.
+It appears that the browser will send a JSON request every 0.5 seconds, with the first request setting the `id` parameter to `0`. Subsequent JSON requests will set the `id` parameter to what was received in the server's response.
 
 In the response received, the `content` value will be displayed in the browser (simulated terminal 😎). If there is `goto` value set, the browser will be redirected to that location.
 
@@ -82,7 +82,7 @@ This is an example response from the server:
 
 ### Time to Get Crackin'!
 
-Well, seems like there is nothing else to try since the output appears to be controlled. What about targetting the `/launch` end-point? Since the hash appears to be seemingly like MD5, it might be crackable. The `payload` parameter contains `target` and `hash` parameters. **Maybe there's a chance** that `target` is the salt used for `hash`?
+Well, it seems like there is nothing else to try since the output appears to be controlled. What about targetting the `/launch` end-point? Since the hash appears to be MD5, it might be crackable. The `payload` parameter contains `target` and `hash` parameters. **Maybe there's a chance** that `target` is the salt used for `hash`?
 
 Here are all 3 `hash`, along with the `target`:
 ```bash
@@ -92,7 +92,7 @@ $ cat hashes.txt
 5aa9b5a497e3918c0e1900b2a2228c38:203.0.113.213
 ```
 
-We can use [hashcat](https://hashcat.net/) to crack these hashes really quickly with a large [wordlist](https://tools.kali.org/password-attacks/wordlists) like `rockyou.txt`. Setting the mode to 10 which specifies the hash are in the format (`md5($pass.$salt)`):
+We can use [hashcat](https://hashcat.net/) to crack these hashes really quickly with a large [wordlist](https://tools.kali.org/password-attacks/wordlists) like `rockyou.txt`. We will then set the mode to `10`, which specifies the hash are in the format (`md5($pass.$salt)`):
 
 > Full list of supported modes are available at https://hashcat.net/wiki/doku.php?id=example_hashes.
 
@@ -105,10 +105,10 @@ $ hashcat -m 10 -a 0 hashes.txt /usr/share/wordlists/rockyou.txt
 5aa9b5a497e3918c0e1900b2a2228c38:203.0.113.213:mrgrinch463
 ```
 
-Success! I found that the salt used is actually `mrgrinch463`, and the `target` is the string to hash.
+Success! I found that the salt used is actually `mrgrinch463`, and the `target` parameter value is the string to hash.
 
 ### Counterstrike at Grinch
-Well, since we can now generate arbitrary `target` with a valid `hash`, we can now strike back at Grinch before he DDoS Santa! 🤣 
+Well, since we can now generate arbitrary `target` with a valid `hash`, we can now strike back at Grinch before he DDoS Santa!
 
 Trying any form of private IP addresses, or the IP address of `hackyholidays.h1ctf.com` was not successful as there is some kind of DNS resolving on the local end, which prevents it from self-DDoS! 😥
 
@@ -128,7 +128,7 @@ ping 1.3.3.7
 64 bytes from 127.0.0.1: icmp_seq=2 ttl=118 time=0 ms <-- 💣
 ```
 
-There are many DNS rebinding tools, but I will be using a free online tool at [https://lock.cmpxchg8b.com/rebinder.html](https://lock.cmpxchg8b.com/rebinder.html). I set the initial IP to `8.8.8.8` and the updated IP to `127.0.0.1`. The output is an domain name that will do the DNS rebinding for us: `08080808.7f000001.rbndr.us`.
+There are many DNS rebinding tools, but I will be using a free online tool at [https://lock.cmpxchg8b.com/rebinder.html](https://lock.cmpxchg8b.com/rebinder.html). I set the initial IP to `8.8.8.8` and the updated IP to `127.0.0.1`. The output is a domain name that will do the DNS rebinding for us: `08080808.7f000001.rbndr.us`.
 
 <p align="center">
   <img src="screenshots/attack-box-3.png" style="width:90%; border:0.5px solid black">

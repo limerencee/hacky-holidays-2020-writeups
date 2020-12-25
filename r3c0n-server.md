@@ -220,6 +220,7 @@ Options [1] and [2] require a valid wordlist as an argument!
 [2] API Parameters
 [3] Username & Password
 1
+
 [+] Discovered end-point(s): 
   [+] ping
   [+] Link: https://hackyholidays.h1ctf.com/r3c0n_server_4fdk59/picture?data=eyJpbWFnZSI6InIzYzBuX3NlcnZlcl80ZmRrNTlcL3VwbG9hZHNcLy4uXC9hcGlcL3BpbmciLCJhdXRoIjoiOTMzZTJkMzk5NWE4MmIzZmQyODE1NWQyMjg3MDk1M2YifQ==
@@ -252,6 +253,7 @@ Options [1] and [2] require a valid wordlist as an argument!
 [2] API Parameters
 [3] Username & Password
 2
+
 [+] Discovered parameters(s): 
   [+] password
   [+] Link: https://hackyholidays.h1ctf.com/r3c0n_server_4fdk59/picture?data=eyJpbWFnZSI6InIzYzBuX3NlcnZlcl80ZmRrNTlcL3VwbG9hZHNcLy4uXC9hcGlcL3VzZXI/cGFzc3dvcmQ9YSIsImF1dGgiOiJjMjEwNTI2ZTMwMDRkODQwYzhmMDM5YjM5MTVlODlkMCJ9
