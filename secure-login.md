@@ -1,3 +1,9 @@
+---
+title: Secure Login
+parent: Flags
+nav_order: 5
+---
+
 # Secure Login
 
 **Challenge URL:** https://hackyholidays.h1ctf.com/secure-login

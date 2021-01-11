@@ -1,3 +1,9 @@
+---
+title: Attack Box
+parent: Flags
+nav_order: 12
+---
+
 # Attack Box
 
 **Challenge URL:** https://hackyholidays.h1ctf.com/r3c0n_server_4fdk59

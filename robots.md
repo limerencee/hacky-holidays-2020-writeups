@@ -1,3 +1,9 @@
+---
+title: Robots
+parent: Flags
+nav_order: 1
+---
+
 # Robots
 
 **(Hidden) Challenge URL:** https://hackyholidays.h1ctf.com/robots.txt

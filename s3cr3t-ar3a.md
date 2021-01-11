@@ -1,3 +1,9 @@
+---
+title: S3cr3t-Ar3a
+parent: Flags
+nav_order: 2
+---
+
 # s3cr3t-ar3a
 
 **(Hidden) Challenge URL:** https://hackyholidays.h1ctf.com/s3cr3t-ar3a/

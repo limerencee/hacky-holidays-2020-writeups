@@ -1,3 +1,9 @@
+---
+title: People Rater
+parent: Flags
+nav_order: 3
+---
+
 # People Rater
 
 **Challenge URL:** https://hackyholidays.h1ctf.com/people-rater

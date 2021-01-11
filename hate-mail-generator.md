@@ -1,3 +1,9 @@
+---
+title: Hate Mail Generator
+parent: Flags
+nav_order: 7
+---
+
 # Hate Mail Generator
 
 **Challenge URL:** https://hackyholidays.h1ctf.com/hate-mail-generator

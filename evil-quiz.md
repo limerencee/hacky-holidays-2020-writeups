@@ -1,3 +1,9 @@
+---
+title: Evil Quiz
+parent: Flags
+nav_order: 9
+---
+
 # Evil Quiz
 
 **Challenge URL:** https://hackyholidays.h1ctf.com/evil-quiz

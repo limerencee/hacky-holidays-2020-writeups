@@ -1,3 +1,9 @@
+---
+title: Forum
+parent: Flags
+nav_order: 8
+---
+
 # Forum
 
 **Challenge URL:** https://hackyholidays.h1ctf.com/forum

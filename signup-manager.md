@@ -1,3 +1,9 @@
+---
+title: Signup Manager
+parent: Flags
+nav_order: 10
+---
+
 # Signup Manager
 
 **Challenge URL:** https://hackyholidays.h1ctf.com/signup-manager

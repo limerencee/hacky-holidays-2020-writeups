@@ -1,3 +1,9 @@
+---
+title: Recon Server
+parent: Flags
+nav_order: 11
+---
+
 # r3c0n-server
 
 **Challenge URL:** https://hackyholidays.h1ctf.com/r3c0n_server_4fdk59

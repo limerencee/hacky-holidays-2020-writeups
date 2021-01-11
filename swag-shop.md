@@ -1,3 +1,9 @@
+---
+title: Swag Shop
+parent: Flags
+nav_order: 4
+---
+
 # Swag Shop
 
 **Challenge URL:** https://hackyholidays.h1ctf.com/swag-shop

@@ -1,3 +1,9 @@
+---
+title: My Diary
+parent: Flags
+nav_order: 6
+---
+
 # My Diary
 
 **Challenge URL:** https://hackyholidays.h1ctf.com/my-diary/?template=entries.html

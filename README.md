@@ -1,6 +1,10 @@
+---
+nav_exclude: true
+---
+
 # Hacky Holidays 2020 CTF Write-ups
 
-**Website:** to be filled
+**Website:** [https://limerencee.github.io/hacky-holidays-2020-writeups](https://limerencee.github.io/hacky-holidays-2020-writeups)
 
 This repository contains my personal write-ups for the challenges that I solved in Hackerone's [Hacky Holidays 2020](https://www.hackerone.com/blog/12-days-hacky-holidays-ctf) CTF. 
 
